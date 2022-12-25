@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Random Quote Machine</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #444;
+      background: #e2e7eb;
+      font: 300 18px/30px Roboto, sans-serif;
+    }
+
+    #quote-box {
+      background: #52b752;
+      padding: 2rem;
+      border-radius: 5px;
+      width: 400px;
+      box-shadow: 0 16px 28px 0 rgba(0, 0, 0, .22), 0 25px 55px 0 rgba(0, 0, 0, .21);
+      position: relative;
+    }
+
+    #text {
+      font-size: 2rem;
+    }
+
+    p {
+      line-height: 1.2;
+    }
+
+    #author {
+      font-size: 1.35rem;
+      text-align: right;
+      font-style: italic;
+    }
+
+    #new-quote {
+      align-items: center;
+      background: #d7f971;
+      border: 10px solid #52b752;
+      color: #1A202C;
+      display: flex;
+      font-size: 1rem;
+      font-weight: 700;
+      height: 56px;
+      justify-content: center;
+      line-height: 24px;
+      overflow-wrap: break-word;
+      padding: 24px;
+      text-decoration: none;
+      width: auto;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      position: absolute;
+      bottom: -35px;
+      left: 135px;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="quote-box">
+    <div id="text"></div>
+    <div id="author"></div>
+    <button type="button" id="new-quote">Random Quote</button>
+    <a href="twitter.com/intent/tweet" id="tweet-quote">Tweet</a>
+  </section>
+  <script>
+    let quotes = [];
+
+    const textEl = document.querySelector('#text');
+    const authorEl = document.querySelector('#author');
+    const newQuoteBtn = document.querySelector('#new-quote');
+
+    const fetchQuotes = async () => {
+      const response = await fetch('https://gist.githubusercontent.com/camperbot/5a022b72e96c4c9585c32bf6a75f62d9/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json');
+      const data = await response.json();
+      quotes = data.quotes;
+      textEl.innerHTML = `<p>${quotes[0].quote}</p>`;
+      authorEl.innerText = quotes[0].author;
+    }
+
+    newQuoteBtn.addEventListener('click', e => {
+      let randomQuote = Math.floor(Math.random() * (quotes.length - 1));
+      textEl.innerHTML = `<p>${quotes[randomQuote].quote}</p>`;
+      authorEl.innerText = quotes[randomQuote].author;
+    });
+    fetchQuotes();
+  </script>
+  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+</body>
+
+</html>
