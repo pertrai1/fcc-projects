@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Markdown Previewer</title>
+  <style>
+    body {
+      margin: 0;
+      color: #444;
+      background: #e2e7eb;
+      font: 300 18px/30px Roboto, sans-serif;
+    }
+
+    .pane-header {
+      border-bottom: 1px dashed;
+    }
+
+    #wrapper {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #wrapper-editor {
+      background-color: #fff;
+      height: 100vh;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      width: 48%;
+    }
+
+    #wrapper-preview {
+      background-color: #fff;
+      height: 100vh;
+      padding-left: 1rem;
+      width: 48%;
+    }
+
+    #editor {
+      border: 1px solid #fff;
+      height: 80vh;
+      width: 100%;
+    }
+
+    #preview {
+      background-color: #fff;
+    }
+
+    #markdown {
+      background: #fff;
+      padding: 0 1rem;
+    }
+
+    #resizer {
+      position: fixed;
+      left: 50%;
+      height: 100%;
+      background-color: #e2e7eb;
+      border-left: 1px solid #cfd0d3;
+      border-right: 1px solid #cfd0d3;
+      width: 10px;
+      z-index: 2;
+    }
+
+    #left-btn {
+      position: fixed;
+      left: 48.75%;
+      top: 50%;
+      background-color: #e2e7eb;
+      border: 1px solid #cfd0d3;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      z-index: 1;
+    }
+
+    #right-btn {
+      position: fixed;
+      left: 50.75%;
+      top: 50%;
+      background-color: #e2e7eb;
+      border: 1px solid #cfd0d3;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      z-index: 1;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.5/marked.min.js"></script>
+</head>
+
+<body>
+  <div id="wrapper">
+    <div id="wrapper-editor">
+      <h1 class="pane-header">Markdown</h1>
+      <textarea id="editor"></textarea>
+    </div>
+    <button type="button" id="left-btn">&#60;</button>
+    <div id="resizer"></div>
+    <button type="button" id="right-btn">&#62;</button>
+    <div id="wrapper-preview">
+      <h1 class="pane-header">Preview</h1>
+      <section id="preview"></section>
+    </div>
+  </div>
+  <script>
+    const editor = document.querySelector('#editor');
+    const editorWrapper = document.querySelector('#wrapper-editor');
+    const preview = document.querySelector('#preview');
+    const previewWrapper = document.querySelector('#wrapper-preview');
+    const resizer = document.querySelector('#resizer');
+
+    const leftBtn = document.querySelector('#left-btn');
+    const rightBtn = document.querySelector('#right-btn');
+
+    leftBtn.addEventListener('click', () => {
+      editorWrapper.style.display = 'none';
+      previewWrapper.style.display = 'block';
+      previewWrapper.style.width = '100%';
+      resizer.style.left = '1px';
+      rightBtn.style.left = '.75%';
+      rightBtn.style.display = 'block';
+      leftBtn.style.display = 'none';
+    });
+
+    rightBtn.addEventListener('click', () => {
+      previewWrapper.style.display = 'none';
+      editorWrapper.style.display = 'block';
+      editorWrapper.style.width = '100%';
+      leftBtn.style.left = 'auto';
+      leftBtn.style.right = '.75%';
+      leftBtn.style.display = 'block';
+      rightBtn.style.display = 'none';
+      resizer.style.right = '1px';
+      resizer.style.left = 'auto';
+    });
+
+    resizer.addEventListener('click', () => {
+      previewWrapper.removeAttribute('style');
+      editorWrapper.removeAttribute('style');
+      leftBtn.removeAttribute('style');
+      rightBtn.removeAttribute('style');
+      resizer.removeAttribute('style');
+    })
+    const codeBlock = '`const test = "hello world"`';
+    editor.value = `# Header 1
+
+## Header 2
+
+[link](http://google.com)
+
+${codeBlock}
+
+- list item
+
+> blockquote
+
+**bold text**
+`;
+    preview.innerHTML = marked.parse(editor.value);
+
+    editor.addEventListener('input', ({target}) => {
+      preview.innerHTML = marked.parse(target.value);
+    })
+  </script>
+  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+</body>
+
+</html>
