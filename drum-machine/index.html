@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drum Machine</title>
+  <style>
+    :root {
+      --lightBg: #f6f8fc;
+      --sectionBg: #eaf1fb;
+      --darkColor: #444;
+      --buttonBg: #c2e7ff;
+    }
+
+    body {
+      background-color: var(--lightBg);
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #drum-machine {
+      background-color: var(--sectionBg);
+      border: 1px solid var(--darkColor);
+      padding: 1rem;
+    }
+
+    .drum-pad {
+      display: inline-block;
+      background-color: var(--buttonBg);
+      padding: 1rem;
+      margin: 0 .25rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .drum-letter {
+      display: block;
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    #display {
+      background-color: var(--lightBg);
+      padding: 2rem;
+      margin: .25rem;
+      font-size: 3rem;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="drum-machine">
+    <div id="display">Current Key:</div>
+  </section>
+
+  <script>
+    const drumPadEl = document.querySelector('#drum-machine');
+    const displayEl = document.querySelector('#display');
+
+    const audioSrcURL = 'https://s3.amazonaws.com/freecodecamp/drums';
+
+    const drumPadObj = [
+      {letter: 'Q', keyCode: 81, sound: 'Heater-1'},
+      {letter: 'W', keyCode: 87, sound: 'Heater-2'},
+      {letter: 'E', keyCode: 69, sound: 'Heater-3'},
+      {letter: 'A', keyCode: 65, sound: 'Heater-4_1'},
+      {letter: 'S', keyCode: 83, sound: 'Heater-6'},
+      {letter: 'D', keyCode: 68, sound: 'Dsc_Oh'},
+      {letter: 'Z', keyCode: 90, sound: 'Kick_n_Hat'},
+      {letter: 'X', keyCode: 88, sound: 'RP4_KICK_1'},
+      {letter: 'C', keyCode: 67, sound: 'Cev_H2'}
+    ];
+
+    const drumPads = drumPadObj.map(obj => {
+      return `<div class="drum-pad" data-key-code="${obj.keyCode}" id="${obj.sound}">
+<span class="drum-letter">${obj.letter}</span>
+<span>${obj.sound}</span>
+        <audio src="" class="clip" id="${obj.letter}"></audio>
+      </div>`;
+    }).join('');
+
+    drumPadEl.insertAdjacentHTML('afterbegin', drumPads);
+
+    Array.from(document.querySelectorAll('.drum-pad')).forEach(el => {
+      el.addEventListener('click', e => {
+        displayEl.innerHTML = e.currentTarget.id;
+      });
+    })
+
+    document.addEventListener('keydown', (e) => {
+      let currentKey =
+        document.querySelector(`div[data-key-code="${e.keyCode}"]`);
+      let currentAudio = document.querySelector(`#${e.key.toUpperCase()}`);
+
+      if (!currentKey) return;
+      currentAudio.src = audioSrcURL + '/' + currentKey.id + '.mp3';
+      currentAudio.play();
+      displayEl.innerHTML = currentKey.id
+    });
+  </script>
+  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+</body>
+
+</html>
