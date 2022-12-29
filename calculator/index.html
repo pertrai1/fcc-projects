@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Calculator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap');
+
+    body {
+      background: #e2e7eb;
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Lato', sans-serif;
+    }
+
+    #calculator {
+      background: #fff;
+      display: grid;
+      grid-template-rows: 15px 75px repeat(5, 75px);
+      grid-template-columns: repeat(4, 75px);
+    }
+
+    #display {
+      background: #fff;
+      align-self: center;
+      grid-column-start: 1;
+      grid-column-end: 5;
+      padding: .5rem;
+      font-size: 3em;
+      text-align: right;
+    }
+
+    #display-small {
+      grid-column-start: 1;
+      grid-column-end: 5;
+      padding: 0 .5rem;
+      text-align: right;
+    }
+
+    #clear,
+    #zero {
+      grid-column: 1 / 3;
+    }
+
+    button {
+      background-color: #fff;
+      border: 1px solid #c8c8c8;
+      border-bottom: none;
+      border-left: none;
+      font-size: 2em;
+      font-family: 'Lato', sans-serif;
+      cursor: pointer;
+    }
+
+    .operators {
+      background-color: #ffd90b;
+      border-right: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="calculator">
+    <div id="display-small"></div>
+    <div id="display"></div>
+    <button type="button" id="clear">AC</button>
+    <button type="button" id="remainder">%</button>
+    <button type="button" class="operators" id="divide">÷</button>
+    <button type="button" id="seven">7</button>
+    <button type="button" id="eight">8</button>
+    <button type="button" id="nine">9</button>
+    <button type="button" class="operators" id="multiply">x</button>
+    <button type="button" id="four">4</button>
+    <button type="button" id="five">5</button>
+    <button type="button" id="six">6</button>
+    <button type="button" class="operators" id="subtract">-</button>
+    <button type="button" id="one">1</button>
+    <button type="button" id="two">2</button>
+    <button type="button" id="three">3</button>
+    <button type="button" class="operators" id="add">+</button>
+    <button type="button" id="zero">0</button>
+    <button type="button" id="decimal">.</button>
+    <button type="button" class="operators" id="equals">=</button>
+  </div>
+  <script>
+    let previousNumber;
+    let currentNumber = 1;
+    let operator;
+    let currentCalculation;
+
+    const displaySmall = document.querySelector('#display-small');
+    const display = document.querySelector('#display');
+    const btns = Array.from(document.querySelectorAll('button'));
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', e => {
+        if (display.innerHTML.includes('.') && btn.innerText === '.')
+          return;
+        if (display.innerHTML.startsWith('0') && btn.innerText === '0') return;
+
+        switch (btn.innerText) {
+          case '=':
+            updateCalculation(display.innerHTML);
+            displaySmall.innerHTML = `${previousNumber} ${operator} ${currentNumber} `;
+            previousNumber = currentCalculation;
+            display.innerHTML = currentCalculation;
+            break;
+          case 'x':
+            operator = '*';
+            updateCalculation(display.innerHTML);
+            break;
+          case '+':
+            operator = '+';
+            updateCalculation(display.innerHTML);
+            break;
+          case '-':
+            operator = '-';
+            updateCalculation(display.innerHTML);
+            break;
+          case '÷':
+            operator = '/';
+            updateCalculation(display.innerHTML);
+            break;
+          case '%':
+            operator = '%';
+            updateCalculation(display.innerHTML);
+            break;
+          default:
+            display.innerHTML += btn.innerText;
+            break;
+        }
+      });
+    });
+    const clearBtn = document.querySelector('#clear');
+    clearBtn.addEventListener('click', e => {
+      previousNumber = '';
+      currentNumber = '';
+      currentCalculation = '';
+      operator = '';
+      displaySmall.innerHTML = '';
+      display.innerHTML = '';
+    });
+
+    function updateCalculation(num) {
+      console.log('num: ', num);
+      display.innerHTML = '';
+      switch (operator) {
+        case '*':
+          if (Number(num) === currentCalculation) {
+            return;
+          }
+          if (!previousNumber) {
+            previousNumber = Number(num);
+          } else if (!currentCalculation) {
+            currentCalculation = previousNumber * Number(num);
+          } else {
+            currentCalculation *= Number(num);
+          }
+          currentNumber = Number(num);
+          break;
+        case '+':
+          if (Number(num) === currentCalculation) {
+            return;
+          }
+          if (!previousNumber) {
+            previousNumber = Number(num);
+          } else if (!currentCalculation) {
+            currentCalculation = previousNumber + Number(num);
+          } else {
+            currentCalculation += Number(num);
+          }
+          currentNumber = Number(num);
+          break;
+        case '-':
+          if (Number(num) === currentCalculation) {
+            return;
+          }
+          if (!previousNumber) {
+            previousNumber = Number(num);
+          } else if (!currentCalculation) {
+            currentCalculation = previousNumber - Number(num);
+          } else {
+            currentCalculation -= Number(num);
+          }
+          currentNumber = Number(num);
+          break;
+        case '/':
+          if (Number(num) === currentCalculation) {
+            return;
+          }
+          if (!previousNumber) {
+            previousNumber = Number(num);
+          } else if (!currentCalculation) {
+            currentCalculation = previousNumber / Number(num);
+          } else {
+            currentCalculation /= Number(num);
+          }
+          currentNumber = Number(num);
+          break;
+        case '%':
+          if (Number(num) === currentCalculation) {
+            return;
+          }
+          if (!previousNumber) {
+            previousNumber = Number(num);
+          } else if (!currentCalculation) {
+            currentCalculation = previousNumber % Number(num);
+          } else {
+            currentCalculation %= Number(num);
+          }
+          currentNumber = Number(num);
+          break;
+
+      }
+      console.log('Update:', {
+        operator, previousNumber, currentNumber,
+        currentCalculation, num
+      });
+    }
+  </script>
+</body>
+
+</html>
