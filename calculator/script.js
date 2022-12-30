@@ -92,7 +92,6 @@ const compute = () => {
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
 
-  debugger;
   if (isNaN(prev) || isNaN(current)) return;
 
   switch (operation) {
