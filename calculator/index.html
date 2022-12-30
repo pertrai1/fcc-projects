@@ -42,8 +42,8 @@
       text-align: right;
     }
 
-    #clear,
-    #zero {
+    [data-all-clear],
+    [data-number="0"] {
       grid-column: 1 / 3;
     }
 
@@ -68,24 +68,24 @@
   <div id="calculator">
     <div id="display-small"></div>
     <div id="display"></div>
-    <button type="button" id="clear">AC</button>
-    <button type="button" id="remainder">%</button>
-    <button type="button" class="operators" id="divide">÷</button>
-    <button type="button" id="seven">7</button>
-    <button type="button" id="eight">8</button>
-    <button type="button" id="nine">9</button>
-    <button type="button" class="operators" id="multiply">x</button>
-    <button type="button" id="four">4</button>
-    <button type="button" id="five">5</button>
-    <button type="button" id="six">6</button>
-    <button type="button" class="operators" id="subtract">-</button>
-    <button type="button" id="one">1</button>
-    <button type="button" id="two">2</button>
-    <button type="button" id="three">3</button>
-    <button type="button" class="operators" id="add">+</button>
-    <button type="button" id="zero">0</button>
-    <button type="button" id="decimal">.</button>
-    <button type="button" class="operators" id="equals">=</button>
+    <button type="button" data-all-clear>AC</button>
+    <button type="button" data-delete>DEL</button>
+    <button type="button" class="operators" data-operation="divide">÷</button>
+    <button type="button" data-number="7">7</button>
+    <button type="button" data-number="8">8</button>
+    <button type="button" data-number="9">9</button>
+    <button type="button" class="operators" data-operation="multiply">x</button>
+    <button type="button" data-number="4">4</button>
+    <button type="button" data-number="5">5</button>
+    <button type="button" data-number="6">6</button>
+    <button type="button" class="operators" data-operation="minus">-</button>
+    <button type="button" data-number="1">1</button>
+    <button type="button" data-number="2">2</button>
+    <button type="button" data-number="3">3</button>
+    <button type="button" class="operators" data-operation="add">+</button>
+    <button type="button" data-number="0">0</button>
+    <button type="button" data-number=".">.</button>
+    <button type="button" class="operators" data-operation="equals">=</button>
   </div>
   <script>
     let previousNumber;
@@ -126,17 +126,13 @@
             operator = '/';
             updateCalculation(display.innerHTML);
             break;
-          case '%':
-            operator = '%';
-            updateCalculation(display.innerHTML);
-            break;
           default:
             display.innerHTML += btn.innerText;
             break;
         }
       });
     });
-    const clearBtn = document.querySelector('#clear');
+    const clearBtn = document.querySelector('[data-all-clear]');
     clearBtn.addEventListener('click', e => {
       previousNumber = '';
       currentNumber = '';
@@ -147,7 +143,6 @@
     });
 
     function updateCalculation(num) {
-      console.log('num: ', num);
       display.innerHTML = '';
       switch (operator) {
         case '*':
@@ -202,25 +197,8 @@
           }
           currentNumber = Number(num);
           break;
-        case '%':
-          if (Number(num) === currentCalculation) {
-            return;
-          }
-          if (!previousNumber) {
-            previousNumber = Number(num);
-          } else if (!currentCalculation) {
-            currentCalculation = previousNumber % Number(num);
-          } else {
-            currentCalculation %= Number(num);
-          }
-          currentNumber = Number(num);
-          break;
 
       }
-      console.log('Update:', {
-        operator, previousNumber, currentNumber,
-        currentCalculation, num
-      });
     }
   </script>
 </body>
