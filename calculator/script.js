@@ -1,112 +1,121 @@
-let previousNumber;
-let currentNumber = 1;
-let operator;
-let currentCalculation;
+const numberBtns = document.querySelectorAll('[data-number]');
+const operationBtns = document.querySelectorAll('[data-operation]');
 
-const displaySmall = document.querySelector('#display-small');
-const display = document.querySelector('#display');
-const btns = Array.from(document.querySelectorAll('button'));
+const currentOperandText = document.querySelector('[data-current-operand]');
+const previousOperandText = document.querySelector('[data-previous-operand]');
 
-btns.forEach(btn => {
-  btn.addEventListener('click', e => {
-    if (display.innerHTML.includes('.') && btn.innerText === '.')
-      return;
-    if (display.innerHTML.startsWith('0') && btn.innerText === '0') return;
+const equalsBtn = document.querySelector('[data-equals]');
+const allClearBtn = document.querySelector('[data-all-clear]');
 
-    switch (btn.innerText) {
-      case '=':
-        updateCalculation(display.innerHTML);
-        displaySmall.innerHTML = `${previousNumber} ${operator} ${currentNumber} `;
-        previousNumber = currentCalculation;
-        display.innerHTML = currentCalculation;
-        break;
-      case 'x':
-        operator = '*';
-        updateCalculation(display.innerHTML);
-        break;
-      case '+':
-        operator = '+';
-        updateCalculation(display.innerHTML);
-        break;
-      case '-':
-        operator = '-';
-        updateCalculation(display.innerHTML);
-        break;
-      case '÷':
-        operator = '/';
-        updateCalculation(display.innerHTML);
-        break;
-      default:
-        display.innerHTML += btn.innerText;
-        break;
-    }
+let operation;
+let currentOperand = '';
+let previousOperand = '';
+
+numberBtns.forEach(button => {
+  button.addEventListener('click', () => {
+    appendNumber(button.dataset.number);
+    updateDisplay();
   });
 });
-const clearBtn = document.querySelector('[data-all-clear]');
-clearBtn.addEventListener('click', e => {
-  previousNumber = '';
-  currentNumber = '';
-  currentCalculation = '';
-  operator = '';
-  displaySmall.innerHTML = '';
-  display.innerHTML = '';
+
+operationBtns.forEach(button => {
+  button.addEventListener('click', () => {
+    chooseOperation(button.dataset.operation);
+    updateDisplay();
+  });
 });
 
-function updateCalculation(num) {
-  display.innerHTML = '';
-  switch (operator) {
-    case '*':
-      if (Number(num) === currentCalculation) {
-        return;
-      }
-      if (!previousNumber) {
-        previousNumber = Number(num);
-      } else if (!currentCalculation) {
-        currentCalculation = previousNumber * Number(num);
-      } else {
-        currentCalculation *= Number(num);
-      }
-      currentNumber = Number(num);
-      break;
-    case '+':
-      if (Number(num) === currentCalculation) {
-        return;
-      }
-      if (!previousNumber) {
-        previousNumber = Number(num);
-      } else if (!currentCalculation) {
-        currentCalculation = previousNumber + Number(num);
-      } else {
-        currentCalculation += Number(num);
-      }
-      currentNumber = Number(num);
-      break;
-    case '-':
-      if (Number(num) === currentCalculation) {
-        return;
-      }
-      if (!previousNumber) {
-        previousNumber = Number(num);
-      } else if (!currentCalculation) {
-        currentCalculation = previousNumber - Number(num);
-      } else {
-        currentCalculation -= Number(num);
-      }
-      currentNumber = Number(num);
-      break;
-    case '/':
-      if (Number(num) === currentCalculation) {
-        return;
-      }
-      if (!previousNumber) {
-        previousNumber = Number(num);
-      } else if (!currentCalculation) {
-        currentCalculation = previousNumber / Number(num);
-      } else {
-        currentCalculation /= Number(num);
-      }
-      currentNumber = Number(num);
-      break;
+equalsBtn.addEventListener('click', () => {
+  compute();
+  updateDisplay();
+});
 
+allClearBtn.addEventListener('click', () => {
+  clear();
+  updateDisplay();
+});
+
+const clear = () => {
+  currentOperand  = '';
+  previousOperand = '';
+  operation = undefined;
+}
+
+const chooseOperation = (operator) => {
+  if (currentOperand === '') return;
+  if (previousOperand !== '') {
+    compute();
+  }
+  operation = operator;
+  previousOperand = currentOperand;
+  currentOperand = '';
+}
+
+const deleteNum = () => {
+  currentOperand = currentOperand.toString().slice(0, -1)
+}
+
+const appendNumber = (num) => {
+  if (num === '.' && currentOperand.includes('.')) return;
+  currentOperand = currentOperand.toString() + num.toString();
+}
+
+const getDisplayNumber = (num) => {
+  const numToString = num.toString();
+  const integerDigits = parseFloat(numToString.split('.')[0]);
+  const decimalDigits = numToString.split('.')[1];
+  let integerDisplay;
+  if (isNaN(integerDigits)) {
+    integerDisplay = '';
+  } else {
+    integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+  }
+
+  if (decimalDigits != null) {
+    return `${integerDigits}.${decimalDigits}`;
+  } else {
+    return integerDisplay;
   }
 }
+
+const updateDisplay = () => {
+  currentOperandText.innerText = getDisplayNumber(currentOperand);
+  if (operation != null) {
+    previousOperandText.innerText = `${getDisplayNumber(previousOperand)} ${operation}`;
+  } else {
+    previousOperandText.innerText = '';
+  }
+}
+
+const compute = () => {
+  let computation;
+  const prev = parseFloat(previousOperand);
+  const current = parseFloat(currentOperand);
+
+  debugger;
+  if (isNaN(prev) || isNaN(current)) return;
+
+  switch (operation) {
+    case '+':
+      computation = prev + current;
+      break;
+    case '-':
+      computation = prev - current;
+      break;
+    case '*':
+      computation = prev * current;
+      break;
+    case '÷':
+      computation = prev / current;
+      break;
+    default:
+      return;
+  }
+
+  currentOperand = computation;
+  operation = undefined;
+  previousOperand = computation;
+}
+
+clear();
+
