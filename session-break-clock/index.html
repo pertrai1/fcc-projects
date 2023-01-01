@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session/Break Clock</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+
+    body {
+      background-color: whitesmoke;
+      box-sizing: border-box;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Oswald', sans-serif;
+    }
+
+    section {
+      background-color: #fff;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 3em;
+      width: 400px;
+    }
+
+    .time-length {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #break-info,
+    #session-info {
+      text-align: center;
+    }
+
+    #break-length,
+    #session-length {
+      font-size: 5em;
+      margin-left: 10px;
+      margin-right: 10px;
+      display: inline-block;
+      min-width: 75px;
+    }
+
+    h3 {
+      background-color: #444;
+      border-radius: 10px;
+      color: #fff;
+      padding: .25em;
+      margin-bottom: 0;
+    }
+
+    .fa-caret-down,
+    .fa-caret-up {
+      font-size: 2em;
+    }
+
+    #timer-label {
+      font-size: 2em;
+      margin: 0;
+    }
+
+    #time-left {
+      font-size: 6em;
+      width: 250px;
+      border: none;
+    }
+
+    #timer-info {
+      margin-top: .5em;
+    }
+
+    .fa-play,
+    .fa-pause,
+    .fa-rotate-left {
+      font-size: 3em;
+    }
+  </style>
+</head>
+
+<body>
+  <section>
+    <div class="time-length">
+      <div id="break-info">
+        <h3 id="break-label">Break Length</h3>
+        <button type="button" id="break-decrement">
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+        <div id="break-length">5</div>
+        <button type="button" id="break-increment">
+          <i class="fa-solid fa-caret-up"></i>
+        </button>
+      </div>
+      <div id="session-info">
+        <h3 id="session-label">Session Length</h3>
+        <button type="button" id="session-decrement">
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+        <div id="session-length">25</div>
+        <button type="button" id="session-increment">
+          <i class="fa-solid fa-caret-up"></i>
+        </button>
+      </div>
+    </div>
+    <div style="text-align: center;">
+      <h3 id="timer-label">Session</h3>
+      <input value="00:00" name="time-left" id="time-left">
+      <div id="timer-info">
+        <button type="button" data-status="session-paused" id="start_stop">
+          <i class="fa fa-play"></i>
+        </button>
+        <button type="button" id="reset">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let breakLengthTime = 5;
+    let sessionLengthTime = 25;
+
+    const breakLength = document.getElementById('break-length');
+    const breakIncrement = document.getElementById('break-increment');
+    const breakDecrement = document.getElementById('break-decrement');
+
+    const sessionLength = document.getElementById('session-length');
+    const sessionIncrement = document.getElementById('session-increment');
+    const sessionDecrement = document.getElementById('session-decrement');
+
+    const timeLeft = document.getElementById('time-left');
+    const startStop = document.getElementById('start_stop');
+    const reset = document.getElementById('reset');
+
+    let timer;
+    const timerLabel = document.getElementById('timer-label');
+    timeLeft.value = sessionLengthTime < 10 ? `0${sessionLengthTime}:00` : `${sessionLengthTime}:00`;
+
+    let [minutes, seconds] = timeLeft.value.split(':');
+
+    startStop.addEventListener('click', () => {
+      switch (startStop.dataset.status) {
+        case 'session-paused':
+          toggleButtonState('playing');
+          updateUIDisplay('session-paused');
+
+          timer = setInterval(() => {
+            if (Number(minutes) === 00 && Number(seconds) === 00) {
+              // clearInterval(timer);
+              startStop.dataset.status = 'break-playing';
+              timerLabel.innerText = 'Break time';
+              minutes = breakLengthTime;
+              timeLeft.value = breakLengthTime < 10 ? `0${breakLengthTime}:00` : `${breakLengthTime}:00`;
+              return;
+            }
+            seconds--;
+            if (seconds < 0) {
+              seconds = 59;
+              minutes--;
+            }
+            console.log(minutes);
+            if (minutes < 10 && seconds < 10) {
+              timeLeft.value = `0${minutes}:0${seconds}`
+            } else if (minutes >= 10 && seconds < 10) {
+              timeLeft.value = `${minutes}:0${seconds}`
+            } else if (minutes < 10 && seconds >= 10) {
+              timeLeft.value = `0${minutes}:${seconds}`
+            } else {
+              timeLeft.value = `${minutes}:${seconds}`
+            }
+          }, 1000);
+          break;
+        case 'session-playing':
+          toggleButtonState('paused');
+          updateUIDisplay('session-playing');
+          clearInterval(timer);
+          break;
+        case 'break-playing':
+          toggleButtonState('paused');
+          updateUIDisplay('break-playing');
+          clearInterval(timer);
+          break;
+        case 'break-paused':
+          toggleButtonState('playing');
+          updateUIDisplay('break-paused');
+          timer = setInterval(() => {
+            if (Number(minutes) === 00 && Number(seconds) === 00) {
+              // clearInterval(timer);
+              startStop.dataset.status = 'session-playing';
+              timerLabel.innerText = 'Session - Running';
+              minutes = sessionLengthTime;
+              timeLeft.value = sessionLengthTime < 10 ? `0${sessionLengthTime}:00` : `${sessionLengthTime}:00`;
+              return;
+            }
+            seconds--;
+            if (seconds < 0) {
+              seconds = 59;
+              minutes--;
+            }
+            if (minutes < 10 && seconds < 10) {
+              timeLeft.value = `${minutes}:0${seconds}`
+            } else if (minutes >= 10 && seconds < 10) {
+              timeLeft.value = `${minutes}:0${seconds}`
+            } else if (minutes < 10 && seconds >= 10) {
+              timeLeft.value = `${minutes}:${seconds}`
+            } else {
+              timeLeft.value = `${minutes}:${seconds}`
+            }
+          }, 1000);
+          break;
+      }
+
+    });
+
+    reset.addEventListener('click', () => {
+      clearInterval(timer);
+      timeLeft.value = `${sessionLengthTime}:00`;
+    });
+
+    breakIncrement.addEventListener('click', () => {
+      if (breakLengthTime === 60) return;
+
+      breakLengthTime++
+      breakLength.innerText = breakLengthTime;
+    });
+    breakDecrement.addEventListener('click', () => {
+      if (breakLengthTime === 1) return;
+
+      breakLengthTime--;
+      breakLength.innerText = breakLengthTime;
+    });
+    sessionIncrement.addEventListener('click', () => {
+      if (sessionLengthTime === 60) return;
+
+      sessionLengthTime++;
+      sessionLength.innerText = sessionLengthTime;
+      timeLeft.value = sessionLengthTime < 10 ? `0${sessionLengthTime}:00` : `${sessionLengthTime}:00`;
+    });
+    sessionDecrement.addEventListener('click', () => {
+      if (sessionLengthTime === 1) return;
+
+      sessionLengthTime--;
+      sessionLength.innerText = sessionLengthTime;
+      timeLeft.value = sessionLengthTime < 10 ? `0${sessionLengthTime}:00` : `${sessionLengthTime}:00`;
+    });
+
+    function toggleButtonState(state = 'playing') {
+      if (state === 'playing') {
+        sessionIncrement.setAttribute('disabled', '');
+        sessionDecrement.setAttribute('disabled', '');
+        breakIncrement.setAttribute('disabled', '');
+        breakDecrement.setAttribute('disabled', '');
+        reset.setAttribute('disabled', '');
+      }
+
+      if (state === 'paused') {
+        sessionIncrement.removeAttribute('disabled');
+        sessionDecrement.removeAttribute('disabled');
+        breakIncrement.removeAttribute('disabled');
+        breakDecrement.removeAttribute('disabled');
+        reset.removeAttribute('disabled');
+      }
+    }
+
+    function updateUIDisplay(status) {
+      const playIcon = document.querySelector('#start_stop i');
+
+      switch (status) {
+        case 'session-paused':
+          timerLabel.innerText = 'Session - Running';
+          startStop.dataset.status = 'session-playing';
+          playIcon.classList.add('fa-pause');
+          playIcon.classList.remove('fa-play');
+          break;
+        case 'session-playing':
+          timerLabel.innerText = 'Session - Paused';
+          startStop.dataset.status = 'session-paused';
+          playIcon.classList.add('fa-play');
+          playIcon.classList.remove('fa-pause');
+          break;
+        case 'break-playing':
+          timerLabel.innerText = 'Break time - Paused';
+          startStop.dataset.status = 'break-paused';
+          playIcon.classList.add('fa-play');
+          playIcon.classList.remove('fa-pause');
+          break;
+        case 'break-paused':
+          timerLabel.innerText = 'Break time - Running';
+          startStop.dataset.status = 'break-playing';
+          playIcon.classList.add('fa-pause');
+          playIcon.classList.remove('fa-play');
+          break;
+      }
+    }
+  </script>
+</body>
+
+</html>
